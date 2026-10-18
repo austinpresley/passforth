@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "standard": "passforth.setup.v1",
+  "api_version": 1,
+  "gates": {
+    "K01": "Untouched package hashes verified before configuration",
+    "L01": "Server, storage, auth, events and framework build checks passed",
+    "L02": "Actual local HTTP and MCP smoke checks passed",
+    "P01": "Recipient owns the private Site, D1 and R2 deployment",
+    "P02": "Recipient reviewed billing, limits and any paid-resource authorization",
+    "H01": "Anonymous and forged-identity requests are denied",
+    "M01": "Live plugin calls, versions, retries, links, planning and maintenance verified",
+    "D01": "Personal Dot subscription and exact same-request live reply verified",
+    "N01": "Released client signature, workspace identity, cache isolation and update settings verified",
+    "N02": "Native sign-in, reference comment, file upload and download verified",
+    "N03": "Offline capture and unsent draft survive restart and sync once",
+    "A01": "Owned maintenance schedule and a real unattended run verified",
+    "R01": "Private backup, attachment checksums and local restore verified"
+  }
+}

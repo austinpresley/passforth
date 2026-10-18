@@ -1,0 +1,13 @@
+import { readFileSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+const root=fileURLToPath(new URL('../dashboard/',import.meta.url));
+process.chdir(root);
+const config=JSON.parse(readFileSync('dist/server/wrangler.json','utf8'));
+const db=config.d1_databases?.find(x=>x.binding==='DB');
+if(!db)throw new Error('Build the dashboard first; its DB binding must be present.');
+db.migrations_dir='../../drizzle';
+writeFileSync('dist/server/wrangler.local-migrations.json',JSON.stringify(config,null,2)+'\n');
+const r=spawnSync(process.execPath,['--import','./scripts/sites-env.mjs','./node_modules/wrangler/bin/wrangler.js','d1','migrations','apply','DB','--local','--config','dist/server/wrangler.local-migrations.json','--persist-to','.wrangler/state'],{stdio:'inherit'});
+if(r.error)throw r.error;
+process.exitCode=r.status??1;

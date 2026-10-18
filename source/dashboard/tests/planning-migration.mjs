@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {DatabaseSync} from 'node:sqlite';
+import {readFileSync,readdirSync} from 'node:fs';
+const database=new DatabaseSync(':memory:');
+for(const file of readdirSync('drizzle').filter(file=>file.endsWith('.sql')&&!file.startsWith('0005')).sort())database.exec(readFileSync('drizzle/'+file,'utf8'));
+const rows=[['first','reference','A note with a quote: it\'s retained.','user',null],['second','request','Question?\nKeep both lines.','user','second'],['third','reply','Agent response.','agent','second']];
+for(const [id,kind,body,author_kind,request_id] of rows) database.prepare('INSERT INTO comments(id,owner,target_type,target_key,kind,body,author,author_kind,request_id,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)').run(id,'a','task','studio',kind,body,author_kind==='user'?'You':'Dot',author_kind,request_id,'2026-10-17T12:00:00Z');
+database.exec("INSERT INTO requests(id,owner,comment_id,target_type,target_key,state,created_at) VALUES('second','a','second','task','studio','answered','2026-10-17T12:00:00Z')");
+const before=database.prepare('SELECT * FROM comments ORDER BY id').all();
+const request=database.prepare('SELECT * FROM requests').get();
+database.exec(readFileSync('drizzle/0005_linked_notes_and_planning.sql','utf8'));
+assert.deepEqual(database.prepare('SELECT * FROM comments ORDER BY id').all(),before);
+assert.deepEqual(database.prepare('SELECT * FROM requests').get(),request);
+database.prepare('INSERT INTO comments SELECT ?,owner,?,target_key,kind,body,author,author_kind,request_id,created_at FROM comments WHERE id=?').run('note-comment','note','first');
+assert.equal(database.prepare('SELECT target_type FROM comments WHERE id=?').get('note-comment').target_type,'note');
+console.log('Populated v3 migration preserves every comment field and request receipt, and accepts note conversations.');

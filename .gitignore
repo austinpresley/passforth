@@ -1,0 +1,6 @@
+profile.json
+workspace.passforth
+*.passforth
+evidence/
+__pycache__/
+.DS_Store

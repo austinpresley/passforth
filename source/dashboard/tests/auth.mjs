@@ -1,0 +1,31 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import ts from 'typescript';
+const env={};globalThis.__authEnv=env;
+const source=readFileSync('lib/auth.ts','utf8').replace("import { env } from 'cloudflare:workers';",'const env=globalThis.__authEnv;');
+const js=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext}}).outputText;
+const auth=await import('data:text/javascript;base64,'+Buffer.from(js).toString('base64'));
+const request=headers=>new Request('https://desk.example.com/api/tasks',{headers});
+assert.equal(await auth.resolveIdentity(request({'oai-authenticated-user-id':'site-owner'})),'site-owner');
+await assert.rejects(auth.resolveIdentity(request({})),error=>error.status===401);
+Object.assign(env,{DESK_AUTH_MODE:'supabase',DESK_OWNER_EMAIL:'owner@example.com',DESK_OWNER_ID:'preserved-owner',DESK_AUTH_USER_ID:'auth-user',SUPABASE_URL:'https://example.supabase.co',SUPABASE_PUBLISHABLE_KEY:'test-publishable',DESK_AGENT_TOKEN:'test-private-agent-token'});
+await assert.rejects(auth.resolveIdentity(request({'oai-authenticated-user-id':'forged'})),error=>error.status===401);
+assert.equal(await auth.resolveIdentity(request({'x-desk-agent-token':'test-private-agent-token'})),'preserved-owner');
+const originalFetch=globalThis.fetch;
+try{
+  globalThis.fetch=async(url,options)=>{assert.equal(String(url),'https://example.supabase.co/auth/v1/user');assert.equal(options.headers.apikey,'test-publishable');return Response.json({id:'auth-user',email:'Owner@example.com',email_confirmed_at:'2026-10-17T00:00:00Z'});};
+  assert.equal(await auth.resolveIdentity(request({authorization:'Bearer valid-user-jwt','oai-authenticated-user-id':'forged'})),'preserved-owner');
+  assert.equal(await auth.resolveIdentity(request({cookie:'desk_access=valid-user-jwt'})),'preserved-owner');
+  globalThis.fetch=async()=>Response.json({id:'other',email:'owner@example.com',email_confirmed_at:'2026-10-17T00:00:00Z'});
+  await assert.rejects(auth.resolveIdentity(request({authorization:'Bearer other-subject'})),error=>error.status===403);
+  globalThis.fetch=async()=>Response.json({id:'auth-user',email:'owner@example.com'});
+  await assert.rejects(auth.resolveIdentity(request({authorization:'Bearer unconfirmed'})),error=>error.status===403);
+  globalThis.fetch=async()=>Response.json({id:'other',email:'someoneelse@example.com'});
+  await assert.rejects(auth.resolveIdentity(request({authorization:'Bearer other-user-jwt'})),error=>error.status===403);
+  globalThis.fetch=async()=>new Response(null,{status:401});
+  await assert.rejects(auth.resolveIdentity(request({authorization:'Bearer expired'})),error=>error.status===401);
+  delete env.DESK_OWNER_ID;
+  await assert.rejects(auth.resolveIdentity(request({authorization:'Bearer valid'})),/not configured/);
+  assert.equal(auth.cookie(request({cookie:'desk_refresh=abc%2Bxyz%3D'}),'desk_refresh'),'abc+xyz=');
+}finally{globalThis.fetch=originalFetch;}
+console.log('Independent authentication checks passed: owner mapping, account allowlist, expired sessions, server tokens, cookie decoding and rejection of forged identity headers. Hosted OAuth remains to be connected.');

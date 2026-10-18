@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>Passforth</string>
+	<key>CFBundleExecutable</key>
+	<string>DotDesk</string>
+	<key>CFBundleIconFile</key>
+	<string>DotDesk.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.apresley.dotdesk.menubar</string>
+	<key>CFBundleName</key>
+	<string>Passforth</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>4.1.0</string>
+	<key>CFBundleVersion</key>
+	<string>8</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>13.0</string>
+	<key>LSUIElement</key>
+	<false/>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>SUFeedURL</key>
+	<string>https://github.com/austinpresley/passforth/releases/latest/download/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>7r8fhyDjoTFbL+qCKGxMICievB5drAIPpXI8edb7Ed8=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUAutomaticallyUpdate</key>
+	<true/>
+	<key>SUScheduledCheckInterval</key>
+	<integer>14400</integer>
+	<key>SUVerifyUpdateBeforeExtraction</key>
+	<true/>
+	<key>SURequireSignedFeed</key>
+	<true/>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Passforth workspace connection</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>passforth</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

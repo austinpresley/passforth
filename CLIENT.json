@@ -1,0 +1,7 @@
+{
+  "minimum_build": 8,
+  "minimum_version": "4.1.0",
+  "bundle_id": "com.apresley.dotdesk.menubar",
+  "release_repository": "https://github.com/austinpresley/passforth",
+  "standard": "passforth.setup.v1"
+}
