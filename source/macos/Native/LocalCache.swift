@@ -8,7 +8,7 @@ final class LocalCache {
     self.directory =
       directory
       ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-      .appendingPathComponent(workspace == nil ? "Passforth" : "Passforth", isDirectory: true)
+      .appendingPathComponent(workspace == nil ? "Dot desk" : "Passforth", isDirectory: true)
       .appendingPathComponent(workspace ?? "", isDirectory: true)
     try FileManager.default.createDirectory(
       at: self.directory, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])

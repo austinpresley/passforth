@@ -49,7 +49,11 @@ def run(root, phase, destination):
     else:
         if execute(["node", "scripts/init-local-db.mjs"], root):
             with socket.socket() as port_probe:
-                port_probe.bind(("127.0.0.1", 0)); port = port_probe.getsockname()[1]
+                tests = [root / "dashboard/tests" / (name + ".mjs") for name in ("smoke", "workspace-smoke", "planning-smoke")]
+                # Earlier deployed snapshots use a fixed test URL. Audit those exact
+                # snapshots without rewriting their source or talking to another server.
+                requested_port = 0 if all("PASSFORTH_TEST_URL" in path.read_text() for path in tests) else 5173
+                port_probe.bind(("127.0.0.1", requested_port)); port = port_probe.getsockname()[1]
             base = "http://127.0.0.1:" + str(port)
             env = {**os.environ, "PASSFORTH_TEST_URL": base, "CLOUDFLARE_CF_FETCH_ENABLED": "false"}
             log_path = destination.parent / "local-preview.log"
